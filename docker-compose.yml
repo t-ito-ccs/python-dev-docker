@@ -1,0 +1,42 @@
+version: '3.5'
+services:
+  python-dev:
+    build: ./dockerfile
+    image: 'python-dev'
+    restart: always
+    # コンテナ名を明示的に指定する
+    container_name: 'python-dev'
+    # ホスト名を明示的に指定する
+    hostname: 'python-dev-server'
+    # コンテナ待ち受け設定
+    tty: true
+    # 起動時の引数
+    command: bash
+    # 明示的に所属するネットワークを指定する
+    networks:
+      # networksの識別子
+      - container-link
+    # volumesの指定
+    volumes:
+    - ./volumes/dev:/var/opt/dev
+    # ログのサイズを指定
+    logging:
+      options:
+        max-size: '200k'
+        max-file: '10'
+
+# ネットワーク定義
+networks:
+  # defaultネットワークとして全コンテナが所属するbridgeを指定
+  default:
+    external:
+      name: bridge
+  # コンテナ間通信用のネットワークセグメント
+  container-link:
+    # ネットワーク名
+    name: docker.internal
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: '172.20.100.0/24'
